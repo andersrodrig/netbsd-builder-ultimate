@@ -7,17 +7,6 @@
 
 **NetBSD Builder Ultimate** is an advanced Bash wrapper for NetBSD's native `build.sh` system. It automates everything from host dependency installation to the final generation of a functional, original ISO image.
 
-
----
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=andersrodrig/netbsd_builder_ultimate&type=Date&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=andersrodrig/netbsd_builder_ultimate&type=Date" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=andersrodrig/netbsd_builder_ultimate&type=Date" />
-</picture>
-
----
-
 ## ✨ Features
 
 * **🌐 Multi-Platform:** Automated dependency installation for **macOS (Homebrew)**, **Linux** (Debian, Ubuntu, Fedora, RHEL, Arch), and **BSDs** (FreeBSD, OpenBSD, NetBSD).
