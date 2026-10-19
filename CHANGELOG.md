@@ -7,20 +7,20 @@ All notable improvements, fixes and changes since the initial version.
 ## [2.5] – 2026-10-19
 
 ### ✅ Added
-- Interactive prompt to skip checksum verification and to enable a "fast download" mode (fewer retries), while keeping environment-variable overrides.
-- Download retry logic and dynamic latest‑STABLE detection for more reliable source fetching.
+- Interactive options to skip checksum verification and to enable a "fast download" mode (fewer retries), while preserving environment-variable overrides.
+- Robust download retry mechanism and dynamic latest-STABLE resolution to improve reliability when fetching sources.
 
 ### 🐛 Fixed
-- Improved download/retry behavior to reduce failed downloads.
-- Safer git options to avoid accidental destructive operations when fetching sources.
+- Reduced failed downloads by improving retry/backoff behavior and error handling.
+- Adopted safer, non-destructive git options to avoid accidental repository corruption during source fetches.
 
 ### 🔄 Changed
-- Default STABLE version updated to `11.0` (script default only).
-- Script prompts are English‑only.
-- More portable CPU detection and minor portability improvements.
+- Updated script default STABLE version to `11.0`.
+- Standardised interactive prompts to English.
+- Improved CPU detection portability and applied minor cross-platform portability fixes.
 
-### ✅ Documentation
-- README updated with detailed execution instructions and clarifications about the interactive prompts.
+### 📚 Documentation
+- Expanded README with detailed execution instructions and clarifications for the interactive prompts.
 
 ---
 
