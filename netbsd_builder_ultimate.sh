@@ -112,6 +112,10 @@ STABLE_VERSION="${STABLE_VERSION:-11.0}"
 CURRENT_BRANCH="${CURRENT_BRANCH:-trunk}"
 BUILD_JOBS=1
 
+# default download retry settings (can be overridden interactively)
+DOWNLOAD_TRIES=${DOWNLOAD_TRIES:-6}
+DOWNLOAD_WAIT=${DOWNLOAD_WAIT:-5}
+
 if command -v nproc >/dev/null 2>&1; then
     BUILD_JOBS=$(nproc)
 elif command -v sysctl >/dev/null 2>&1; then
@@ -122,33 +126,46 @@ mkdir -p "$BASE_DIR" "$DIST_DIR" "$OBJ_DIR" "$DEST_DIR" "$REL_DIR"
 START_TIME=$(date +%s)
 
 # -----------------------------------------------------------------------------
-# UTILS: download with retry and detect latest stable
+# UTILS: download with exponential backoff and detect latest stable
 # -----------------------------------------------------------------------------
 download_with_retry() {
     local url="$1"
     local out="$2"
-    local tries=${3:-5}
-    local wait=${4:-5}
+    local tries=${3:-$DOWNLOAD_TRIES}
+    local wait=${4:-$DOWNLOAD_WAIT}
 
-    # Try wget first
-    if command -v wget >/dev/null 2>&1; then
-        log "Downloading $url -> $out (wget, tries=$tries)"
-        if wget -c --tries="$tries" --waitretry="$wait" --retry-connrefused --timeout=30 "${url}" -O "$out"; then
-            return 0
-        else
-            warn "wget failed for $url"
-        fi
-    fi
+    local attempt=1
+    local backoff=$wait
 
-    # Fallback to curl
-    if command -v curl >/dev/null 2>&1; then
-        log "Downloading $url -> $out (curl, retries=$tries)"
-        if curl --fail --location --retry "$tries" --retry-connrefused --retry-delay "$wait" --max-time 600 "$url" -o "$out"; then
-            return 0
-        else
-            warn "curl failed for $url"
+    while [ $attempt -le $tries ]; do
+        # Try wget first
+        if command -v wget >/dev/null 2>&1; then
+            log "Downloading $url -> $out (wget, attempt $attempt/$tries)"
+            if wget -c --tries=1 --waitretry=0 --timeout=30 "${url}" -O "$out"; then
+                return 0
+            else
+                warn "wget attempt $attempt failed for $url"
+            fi
         fi
-    fi
+
+        # Fallback to curl
+        if command -v curl >/dev/null 2>&1; then
+            log "Downloading $url -> $out (curl, attempt $attempt/$tries)"
+            if curl --fail --location --max-time 600 --retry 0 "$url" -o "$out"; then
+                return 0
+            else
+                warn "curl attempt $attempt failed for $url"
+            fi
+        fi
+
+        # Exponential backoff before next attempt
+        if [ $attempt -lt $tries ]; then
+            log "Retrying in ${backoff}s..."
+            sleep $backoff
+            backoff=$((backoff * 2))
+        fi
+        attempt=$((attempt + 1))
+    done
 
     return 1
 }
@@ -173,8 +190,7 @@ get_latest_stable() {
     fi
 
     # Convert to just numbers and choose the highest (works with major.minor)
-    # Create lines: major minor version
-    local best=""
+    local detected=""
     while read -r v; do
         ver=${v#NetBSD-}
         maj=${ver%%.*}
@@ -188,6 +204,140 @@ get_latest_stable() {
     else
         warn "Unable to detect latest stable — keeping ${STABLE_VERSION}"
     fi
+}
+
+# -----------------------------------------------------------------------------
+# Interactive choices for verification and download speed
+# -----------------------------------------------------------------------------
+ask_verification_options() {
+    # If the env SKIP_CHECKSUMS is already set, respect it and do not prompt
+    if [ -z "${SKIP_CHECKSUMS+x}" ]; then
+        read -p "Verify checksums of downloaded tarballs? (Y/n) " verify_resp
+        verify_resp="${verify_resp:-Y}"
+        if [[ "$verify_resp" =~ ^([Nn])$ ]]; then
+            SKIP_CHECKSUMS=1
+        else
+            SKIP_CHECKSUMS=0
+        fi
+    else
+        log "SKIP_CHECKSUMS set in environment: ${SKIP_CHECKSUMS}"
+    fi
+
+    # If DOWNLOAD_TRIES/WAIT are set in env, respect them, otherwise prompt about fast mode
+    if [ -z "${DOWNLOAD_TRIES+x}" ] || [ -z "${DOWNLOAD_WAIT+x}" ]; then
+        read -p "Use fast download mode (fewer retries)? (y/N) " fast_resp
+        fast_resp="${fast_resp:-N}"
+        if [[ "$fast_resp" =~ ^(y|yes)$ ]]; then
+            DOWNLOAD_TRIES=2
+            DOWNLOAD_WAIT=2
+        else
+            DOWNLOAD_TRIES=${DOWNLOAD_TRIES:-6}
+            DOWNLOAD_WAIT=${DOWNLOAD_WAIT:-5}
+        fi
+    else
+        log "DOWNLOAD_TRIES/WAIT set in environment: tries=$DOWNLOAD_TRIES wait=$DOWNLOAD_WAIT"
+    fi
+
+    log "Checksum verification: $( [ "$SKIP_CHECKSUMS" -eq 1 ] && echo 'disabled' || echo 'enabled')"
+    log "Download retries: $DOWNLOAD_TRIES, initial wait ${DOWNLOAD_WAIT}s"
+}
+
+verify_tarballs_checksums() {
+    # Parameters: base_url, array of filenames
+    local base_url="$1"; shift
+    local files=("$@")
+
+    # If user opted to skip checksums, return success
+    if [ "${SKIP_CHECKSUMS:-0}" = "1" ]; then
+        log "Skipping checksum verification (SKIP_CHECKSUMS=1)"
+        return 0
+    fi
+
+    # Try common checksum filenames in the base url
+    local checksum_candidates=("SHA512" "SHA256" "sha512" "sha256" "SHA512.sig" "SHA256.sig")
+    local checksum_file_local=""
+    local checksum_algo=""
+
+    for cand in "${checksum_candidates[@]}"; do
+        local remote="${base_url}/${cand}"
+        local localpath="$BASE_DIR/${cand}"
+        if download_with_retry "$remote" "$localpath" 3 2; then
+            checksum_file_local="$localpath"
+            if echo "$cand" | grep -qi "512"; then
+                checksum_algo=512
+            else
+                checksum_algo=256
+            fi
+            log "Using checksum file: $remote (algo: sha${checksum_algo})"
+            break
+        fi
+    done
+
+    if [ -z "$checksum_file_local" ]; then
+        warn "No checksum file found on CDN — skipping checksum verification"
+        return 0
+    fi
+
+    # Choose verification command depending on availability
+    local sumcmd=""
+    if [ "$checksum_algo" -eq 512 ]; then
+        if command -v sha512sum >/dev/null 2>&1; then
+            sumcmd="sha512sum"
+        elif command -v shasum >/dev/null 2>&1; then
+            sumcmd="shasum -a 512"
+        fi
+    else
+        if command -v sha256sum >/dev/null 2>&1; then
+            sumcmd="sha256sum"
+        elif command -v shasum >/dev/null 2>&1; then
+            sumcmd="shasum -a 256"
+        fi
+    fi
+
+    if [ -z "$sumcmd" ]; then
+        warn "No checksum tool found (sha256sum/sha512sum/shasum) — cannot verify checksums"
+        return 0
+    fi
+
+    # For each downloaded file, try to find the expected checksum in the checksum file
+    local failures=0
+    for f in "${files[@]}"; do
+        local path="$BASE_DIR/$f"
+        if [ ! -f "$path" ]; then
+            warn "File not found: $path"
+            failures=$((failures + 1))
+            continue
+        fi
+
+        local expected=""
+        expected=$(grep -E "[0-9a-fA-F]{64,128}\s+${f}$" "$checksum_file_local" | awk '{print $1}' | head -n1 || true)
+        if [ -z "$expected" ]; then
+            expected=$(grep -E "[0-9a-fA-F]{64,128}\s+\./${f}$" "$checksum_file_local" | awk '{print $1}' | head -n1 || true)
+        fi
+        if [ -z "$expected" ]; then
+            expected=$(grep -i "${f}" "$checksum_file_local" | grep -oE "[0-9a-fA-F]{64,128}" | head -n1 || true)
+        fi
+
+        if [ -z "$expected" ]; then
+            warn "Could not find expected checksum for $f in $checksum_file_local — skipping this file"
+            continue
+        fi
+
+        local local_sum
+        local_sum=$( $sumcmd "$path" | awk '{print $1}' ) || true
+
+        if [ -n "$local_sum" ] && [ "${local_sum,,}" = "${expected,,}" ]; then
+            log "Checksum OK: $f"
+        else
+            error "Checksum mismatch for $f (expected: ${expected}, got: ${local_sum:-none})"
+            failures=$((failures + 1))
+        fi
+    done
+
+    if [ $failures -gt 0 ]; then
+        return 1
+    fi
+    return 0
 }
 
 # -----------------------------------------------------------------------------
@@ -397,11 +547,21 @@ fetch_stable_tarballs() {
     [ "$BUILD_X11" = true ] && tarballs+=("xsrc.tgz")
     for tgz in "${tarballs[@]}"; do
         if [ ! -f "$BASE_DIR/$tgz" ]; then
-            if ! download_with_retry "${base_url}/${tgz}" "$BASE_DIR/$tgz" 6 5; then
+            if ! download_with_retry "${base_url}/${tgz}" "$BASE_DIR/$tgz"; then
                 error "Failed to download $tgz after retries"
             fi
         fi
     done
+
+    # verify checksums if not skipped
+    if [ "${SKIP_CHECKSUMS:-0}" != "1" ]; then
+        if ! verify_tarballs_checksums "$base_url" "${tarballs[@]}"; then
+            error "Checksum verification failed. Aborting."
+        fi
+    else
+        log "Checksum verification skipped per user choice."
+    fi
+
     mkdir -p "$SRC_DIR"
     for tgz in "${tarballs[@]}"; do
         tar -xzf "$BASE_DIR/$tgz" -C "$SRC_DIR" --skip-old-files
@@ -511,6 +671,9 @@ main() {
     fi
 
     ask_compiler
+
+    # Ask interactive questions about checksum verification and download speed
+    ask_verification_options
 
     check_disk_space
     clean_previous_builds
