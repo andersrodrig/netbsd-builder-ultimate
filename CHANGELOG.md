@@ -4,6 +4,26 @@ All notable improvements, fixes and changes since the initial version.
 
 ---
 
+## [2.5] – 2026-10-19
+
+### ✅ Added
+- Interactive prompt to skip checksum verification and to enable a "fast download" mode (fewer retries), while keeping environment-variable overrides.
+- Download retry logic and dynamic latest‑STABLE detection for more reliable source fetching.
+
+### 🐛 Fixed
+- Improved download/retry behavior to reduce failed downloads.
+- Safer git options to avoid accidental destructive operations when fetching sources.
+
+### 🔄 Changed
+- Default STABLE version updated to `11.0` (script default only).
+- Script prompts are English‑only.
+- More portable CPU detection and minor portability improvements.
+
+### ✅ Documentation
+- README updated with detailed execution instructions and clarifications about the interactive prompts.
+
+---
+
 ## [2.4] – 2026-04-29
 
 ### ✅ Added
@@ -122,6 +142,6 @@ All notable improvements, fixes and changes since the initial version.
 
 ---
 
-**Current stable version:** `2.4` – tested successfully on 2026-04-29.  
+**Current stable version:** `2.5` – last changes on 2026-10-19.  
 Generated ISO: `NetBSD-11.99.5-amd64-dvd.iso` (boots fine, login reached).  
 Only harmless warning: postfix complains about empty hostname (no impact).
