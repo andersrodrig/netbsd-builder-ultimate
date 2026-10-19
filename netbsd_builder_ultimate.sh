@@ -52,7 +52,7 @@ show_welcome() {
     cat << "EOF"
                                               __,gnnnOCCCCCOObaau,_
                 _._                    __,gnnCCCCCCCCOPF"''        ~
-               (N\XCbngg,._____.,gnnndCCCCCCCCCCCCF"___,,,,___
+               (N\XCbngg,._____. ,gnnndCCCCCCCCCCCCF"___,,,,___
                 \N\XCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCOOOOPYvv.
                  \N\XCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCPF"''
                   \N\XCCCCCCCCCCCCCCCCCCCCCCCCCOF"'
@@ -61,15 +61,15 @@ show_welcome() {
                      \N\"PCOCCCOCCFP""
                       \N\
                        \N\                                               ---
-  qnnnn.     qnnnnr     \N\       qgggaagge,     ,spsqs,  qgggaaagga,.  | R |
-    NNNNL     "NN                  BBB   "BBb   ;SS   "Ss  DDD    "VDDm  ---
-    NNVNNb,    NN           ,t     BBB    IBP   SSk,    "  DDD      "DDb
-    NN "VNNp,  NN  .epqe, zttttz   BBBgggdBP'   "SSSSp,    DDD       YDD
-    NN   "VNNp,NN eEY__YA   TT     BBB""""GBm,    "SSSSR   DDD       ADD
-    NN     "VNbNN EEF""""'  TT     BBB     BBB       "YSL  DDD      .DDP
-    NN       "YNN VEL    ,  TT     BBB    _BBP s,     ISF  DDD     ,DDD'
-  adNNbe      "NN "VEggdF   ttgt  dBBBaaadBBF'  YSgggdSP' dDDDaaadCDF"
-                                                       
+   qnnnn.     qnnnnr     \N\       qgggaagge,     ,spsqs,  qgggaaagga,.  | R |
+     NNNNL     "NN                  BBB   "BBb   ;SS   "Ss  DDD    "VDDm  ---
+     NNVNNb,    NN           ,t     BBB    IBP   SSk,    "  DDD      "DDb
+     NN "VNNp,  NN  .epqe, zttttz   BBBgggdBP'   "SSSSp,    DDD       YDD
+     NN   "VNNp,NN eEY__YA   TT     BBB""""GBm,    "SSSSR   DDD       ADD
+     NN     "VNbNN EEF""""'  TT     BBB     BBB       "YSL  DDD      .DDP
+     NN       "YNN VEL    ,  TT     BBB    _BBP s,     ISF  DDD     ,DDD'
+   adNNbe      "NN "VEggdF   ttgt  dBBBaaadBBF'  YSgggdSP' dDDDaaadCDF"
+                                                        
                                 \NN\
                                  \NN\
                                   \NNA.
@@ -79,12 +79,12 @@ show_welcome() {
                                       \NNN\
                                        \NNNA
 EOF
-    echo -e "${YELLOW}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}╔═════════════════════════════════════════════════════════[...]
     echo -e "${YELLOW}║                         ${GREEN}NetBSD Builder Ultimate     ${YELLOW}                         ║${NC}"
     echo -e "${YELLOW}║                                                                              ║${NC}"
-    echo -e "${YELLOW}║   ${CYAN}▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓${YELLOW}     ║${NC}"
+    echo -e "${YELLOW}║   ${CYAN}▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓${YELLOW}     ║${NC}"
     echo -e "${YELLOW}║   ${CYAN}▓▓▒░${BLUE}               NetBSD  ${GREEN}\"Of course it runs NetBSD\"${BLUE}             ${CYAN}░▒▓▓${YELLOW}     ║${NC}"
-    echo -e "${YELLOW}║   ${CYAN}▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓${YELLOW}     ║${NC}"
+    echo -e "${YELLOW}║   ${CYAN}▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓${YELLOW}     ║${NC}"
     echo -e "${YELLOW}║                                                                              ║${NC}"
     echo -e "${YELLOW}║   ${MAGENTA}Welcome to the personalized NetBSD ISO builder!${YELLOW}                            ║${NC}"
     echo -e "${YELLOW}║   This script will guide you through the options and start the build.        ║${NC}"
@@ -92,7 +92,7 @@ EOF
     echo -e "${YELLOW}║                                                                              ║${NC}"
     echo -e "${YELLOW}║   ${CYAN}Note: The generated ISO is original (no extra modifications).${YELLOW}              ║${NC}"
     echo -e "${YELLOW}║   To add pkgsrc, do it manually after installation.                          ║${NC}"
-    echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${YELLOW}╚═════════════════════════════════════════════════════════[...]
     echo ""
     read -p "$(echo -e ${CYAN}▶ Press ENTER to start the build...${NC})" dummy
     echo ""
@@ -108,7 +108,15 @@ DIST_DIR="$BASE_DIR/dist"
 OBJ_DIR="$BASE_DIR/obj"
 DEST_DIR="$BASE_DIR/destdir"
 REL_DIR="$BASE_DIR/release"
-BUILD_JOBS=$(nproc)
+STABLE_VERSION="${STABLE_VERSION:-11.0}"
+CURRENT_BRANCH="${CURRENT_BRANCH:-trunk}"
+BUILD_JOBS=1
+
+if command -v nproc >/dev/null 2>&1; then
+    BUILD_JOBS=$(nproc)
+elif command -v sysctl >/dev/null 2>&1; then
+    BUILD_JOBS=$(sysctl -n hw.ncpu 2>/dev/null || echo 1)
+fi
 
 mkdir -p "$BASE_DIR" "$DIST_DIR" "$OBJ_DIR" "$DEST_DIR" "$REL_DIR"
 START_TIME=$(date +%s)
@@ -162,10 +170,10 @@ ask_x11() {
     while true; do
         read -p "Build X11 (graphical interface)? (y/N) " resp
         resp="${resp,,}"
-        if [[ "$resp" =~ ^(s|sim|y|yes)$ ]]; then
+        if [[ "$resp" =~ ^(y|yes)$ ]]; then
             BUILD_X11=true
             break
-        elif [[ "$resp" =~ ^(n|nao|não|no|)$ ]]; then
+        elif [[ "$resp" =~ ^(n|no|)$ ]]; then
             BUILD_X11=false
             break
         else
@@ -178,15 +186,15 @@ ask_32bit_compat() {
     # Only for amd64
     while true; do
         echo ""
-        read -p "Include 32‑bit application support (base32/comp32)? (y/N) " resp
+        read -p "Include 32-bit application support (base32/comp32)? (y/N) " resp
         resp="${resp,,}"
-        if [[ "$resp" =~ ^(s|sim|y|yes)$ ]]; then
+        if [[ "$resp" =~ ^(y|yes)$ ]]; then
             ENABLE_32BIT=true
-            log "✅ 32‑bit compatibility will be included (MKCOMPAT=yes)"
+            log "✅ 32-bit compatibility will be included (MKCOMPAT=yes)"
             break
-        elif [[ "$resp" =~ ^(n|nao|não|no|)$ ]]; then
+        elif [[ "$resp" =~ ^(n|no|)$ ]]; then
             ENABLE_32BIT=false
-            log "❌ 32‑bit compatibility will NOT be included"
+            log "❌ 32-bit compatibility will NOT be included"
             break
         else
             warn "Answer y or n."
@@ -199,11 +207,11 @@ ask_compiler() {
         echo ""
         read -p "Use Clang as default compiler instead of GCC? (y/N) " resp
         resp="${resp,,}"
-        if [[ "$resp" =~ ^(s|sim|y|yes)$ ]]; then
+        if [[ "$resp" =~ ^(y|yes)$ ]]; then
             USE_CLANG=true
             log "✅ Compilation with Clang/LLVM"
             break
-        elif [[ "$resp" =~ ^(n|nao|não|no|)$ ]]; then
+        elif [[ "$resp" =~ ^(n|no|)$ ]]; then
             USE_CLANG=false
             log "❌ Compilation with GCC (default)"
             break
@@ -227,9 +235,9 @@ check_disk_space() {
 
 run_privileged() {
     local cmd="$1"
-    if command -v sudo &>/dev/null && sudo -n true 2>/dev/null; then
+    if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
         sudo sh -c "$cmd"
-    elif command -v su &>/dev/null; then
+    elif command -v su >/dev/null 2>&1; then
         su -c "$cmd"
     else
         error "Unable to execute '$cmd' as root. Install sudo or run manually."
@@ -242,7 +250,7 @@ install_dependencies() {
     # macOS
     if [[ "$(uname -s)" == "Darwin" ]]; then
         log "macOS detected. Installing dependencies via Homebrew..."
-        if ! command -v brew &>/dev/null; then
+        if ! command -v brew >/dev/null 2>&1; then
             echo -e "${YELLOW}Homebrew not found. Installing...${NC}"
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || error "Failed to install Homebrew"
         fi
@@ -253,29 +261,29 @@ install_dependencies() {
     fi
 
     # Linux / BSD
-    if command -v apt-get &>/dev/null; then
+    if command -v apt-get >/dev/null 2>&1; then
         log "apt package manager detected (Debian/Ubuntu)"
-        run_privileged "apt-get update && apt-get install -y build-essential bison flex libssl-dev libelf-dev bc gawk wget tar xz-utils bzip2 xorriso grub-pc-bin grub-efi-amd64-bin mtools cpio pkg-config python3 texinfo rsync unzip patch zlib1g-dev openssl cmake git curl"
+        run_privileged "apt-get update && apt-get install -y build-essential bison flex libssl-dev libelf-dev bc gawk wget tar xz-utils bzip2 xorriso grub-pc-bin grub-efi-amd64-bin mtools cpio pkg-config python3 texinfo rsync unzip patch zlib cmake git curl"
 
-    elif command -v dnf &>/dev/null; then
+    elif command -v dnf >/dev/null 2>&1; then
         log "dnf package manager detected (Fedora/RHEL)"
-        run_privileged "dnf groupinstall -y 'Development Tools' && dnf install -y bison flex openssl-devel elfutils-libelf-devel bc gawk wget tar xz bzip2 xorriso grub2-tools grub2-pc mtools cpio pkgconfig python3 texinfo rsync unzip patch zlib-devel openssl cmake git curl"
+        run_privileged "dnf groupinstall -y 'Development Tools' && dnf install -y bison flex openssl-devel elfutils-libelf-devel bc gawk wget tar xz bzip2 xorriso grub2-tools grub2-pc mtools cpio pkgconf python3 texinfo rsync unzip patch zlib cmake git curl"
 
-    elif command -v yum &>/dev/null; then
+    elif command -v yum >/dev/null 2>&1; then
         log "yum package manager detected (CentOS/RHEL 7)"
-        run_privileged "yum groupinstall -y 'Development Tools' && yum install -y bison flex openssl-devel elfutils-libelf-devel bc gawk wget tar xz bzip2 xorriso grub2-tools mtools cpio pkgconfig python3 texinfo rsync unzip patch zlib-devel openssl cmake git curl"
+        run_privileged "yum groupinstall -y 'Development Tools' && yum install -y bison flex openssl-devel elfutils-libelf-devel bc gawk wget tar xz bzip2 xorriso grub2-tools mtools cpio pkgconf python3 texinfo rsync unzip patch zlib cmake git curl"
 
-    elif command -v pacman &>/dev/null; then
+    elif command -v pacman >/dev/null 2>&1; then
         log "pacman package manager detected (Arch Linux)"
         run_privileged "pacman -S --needed --noconfirm base-devel bison flex openssl libelf bc gawk wget tar xz bzip2 libisoburn grub mtools cpio pkg-config python texinfo rsync unzip patch zlib cmake git curl"
 
-    elif command -v pkg &>/dev/null; then
+    elif command -v pkg >/dev/null 2>&1; then
         log "pkg package manager detected (FreeBSD)"
         run_privileged "pkg update && pkg install -y gcc bison flex openssl elfutils bc gawk wget tar xz bzip2 xorriso grub2-tools mtools cpio pkgconf python3 texinfo rsync unzip patch zlib cmake git curl"
 
-    elif command -v pkgin &>/dev/null; then
+    elif command -v pkgin >/dev/null 2>&1; then
         log "pkgin package manager detected (NetBSD)"
-        if ! command -v pkgin &>/dev/null; then
+        if ! command -v pkgin >/dev/null 2>&1; then
             echo -e "${YELLOW}pkgin not found. Installing via pkg_add...${NC}"
             run_privileged "pkg_add pkgin" || error "Failed to install pkgin"
         fi
@@ -301,9 +309,9 @@ clean_previous_builds() {
 # SOURCE CODE RETRIEVAL
 # -----------------------------------------------------------------------------
 fetch_stable_tarballs() {
-    log "Downloading stable tarballs (NetBSD 10.0)..."
+    log "Downloading stable tarballs (NetBSD ${STABLE_VERSION})..."
     cd "$BASE_DIR"
-    local base_url="https://cdn.netbsd.org/pub/NetBSD/NetBSD-10.0/source/sets"
+    local base_url="https://cdn.netbsd.org/pub/NetBSD/NetBSD-${STABLE_VERSION}/source/sets"
     local tarballs=("syssrc.tgz" "gnusrc.tgz" "sharesrc.tgz" "libsrc.tgz" "external.tgz")
     [ "$BUILD_X11" = true ] && tarballs+=("xsrc.tgz")
     for tgz in "${tarballs[@]}"; do
@@ -322,17 +330,15 @@ fetch_stable_tarballs() {
 }
 
 fetch_current_git() {
-    log "Downloading CURRENT via git (shallow clone)..."
-    git config --global http.postBuffer 524288000
-    git config --global http.lowSpeedLimit 1000
-    git config --global http.lowSpeedTime 600
+    log "Downloading CURRENT via git (shallow clone, branch: ${CURRENT_BRANCH})..."
     update_repo() {
         local dir="$1"
         local url="$2"
+        local git_opts=(-c http.postBuffer=524288000 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=600)
         if [ -d "$dir/.git" ]; then
-            cd "$dir" && git fetch --depth 1 origin trunk && git reset --hard origin/trunk
+            cd "$dir" && git "${git_opts[@]}" fetch --depth 1 origin "$CURRENT_BRANCH" && git reset --hard "origin/$CURRENT_BRANCH"
         else
-            git clone --depth 1 --single-branch -b trunk "$url" "$dir"
+            git "${git_opts[@]}" clone --depth 1 --single-branch -b "$CURRENT_BRANCH" "$url" "$dir"
         fi
     }
     update_repo "$SRC_DIR" "https://github.com/NetBSD/src.git"
@@ -417,7 +423,7 @@ main() {
     if [ "$TARGET_MACHINE" = "amd64" ]; then
         ask_32bit_compat
     else
-        log "32‑bit compatibility ignored for $TARGET_MACHINE"
+        log "32-bit compatibility ignored for $TARGET_MACHINE"
         ENABLE_32BIT=false
     fi
 
