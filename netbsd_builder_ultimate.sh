@@ -122,6 +122,75 @@ mkdir -p "$BASE_DIR" "$DIST_DIR" "$OBJ_DIR" "$DEST_DIR" "$REL_DIR"
 START_TIME=$(date +%s)
 
 # -----------------------------------------------------------------------------
+# UTILS: download with retry and detect latest stable
+# -----------------------------------------------------------------------------
+download_with_retry() {
+    local url="$1"
+    local out="$2"
+    local tries=${3:-5}
+    local wait=${4:-5}
+
+    # Try wget first
+    if command -v wget >/dev/null 2>&1; then
+        log "Downloading $url -> $out (wget, tries=$tries)"
+        if wget -c --tries="$tries" --waitretry="$wait" --retry-connrefused --timeout=30 "${url}" -O "$out"; then
+            return 0
+        else
+            warn "wget failed for $url"
+        fi
+    fi
+
+    # Fallback to curl
+    if command -v curl >/dev/null 2>&1; then
+        log "Downloading $url -> $out (curl, retries=$tries)"
+        if curl --fail --location --retry "$tries" --retry-connrefused --retry-delay "$wait" --max-time 600 "$url" -o "$out"; then
+            return 0
+        else
+            warn "curl failed for $url"
+        fi
+    fi
+
+    return 1
+}
+
+get_latest_stable() {
+    # Attempt to detect the latest NetBSD stable version from the CDN listing
+    # Fallback to STABLE_VERSION already set
+    local index_url="https://cdn.netbsd.org/pub/NetBSD/"
+    log "Detecting latest stable NetBSD version from CDN..."
+    local html
+    if ! html=$(curl -fsS "$index_url" 2>/dev/null); then
+        warn "Could not fetch $index_url — using default STABLE_VERSION=${STABLE_VERSION}"
+        return
+    fi
+
+    # Extract strings like NetBSD-11.0 NetBSD-11.1 etc.
+    local versions
+    versions=$(printf "%s" "$html" | grep -oE 'NetBSD-[0-9]+\.[0-9]+' | sort -u)
+    if [ -z "$versions" ]; then
+        warn "No NetBSD versions found on CDN index — using default ${STABLE_VERSION}"
+        return
+    fi
+
+    # Convert to just numbers and choose the highest (works with major.minor)
+    # Create lines: major minor version
+    local best=""
+    while read -r v; do
+        ver=${v#NetBSD-}
+        maj=${ver%%.*}
+        min=${ver##*.}
+        printf "%s %s %s\n" "$maj" "$min" "$ver"
+    done <<<"$versions" | sort -n -k1 -n -k2 -n | awk '{print $3}' | tail -n1 | read -r detected
+
+    if [ -n "$detected" ]; then
+        STABLE_VERSION="$detected"
+        log "Detected latest stable: $STABLE_VERSION"
+    else
+        warn "Unable to detect latest stable — keeping ${STABLE_VERSION}"
+    fi
+}
+
+# -----------------------------------------------------------------------------
 # INTERACTIVE CONFIGURATION FUNCTIONS
 # -----------------------------------------------------------------------------
 select_version() {
@@ -140,6 +209,12 @@ select_version() {
             *) warn "Invalid option." ;;
         esac
     done
+
+    if [ "$VERSION_TYPE" = "stable" ]; then
+        get_latest_stable
+        log "Using STABLE_VERSION=$STABLE_VERSION"
+    fi
+
     log "Version: $VERSION_TYPE"
 }
 
@@ -226,7 +301,13 @@ ask_compiler() {
 # -----------------------------------------------------------------------------
 check_disk_space() {
     log "Checking disk space (minimum 20GB)..."
-    local avail=$(df --output=avail "$BASE_DIR" | tail -1 | awk '{print int($1/1024/1024)}')
+    local avail
+    if df --output=avail "$BASE_DIR" >/dev/null 2>&1; then
+        avail=$(df --output=avail "$BASE_DIR" | tail -1 | awk '{print int($1/1024/1024)}')
+    else
+        # fallback for systems without --output (some BSDs)
+        avail=$(df -k "$BASE_DIR" | tail -1 | awk '{print int($4/1024/1024)}')
+    fi
     if [ "$avail" -lt 20 ]; then
         error "Only ${avail}GB free (minimum 20GB)."
     fi
@@ -316,7 +397,9 @@ fetch_stable_tarballs() {
     [ "$BUILD_X11" = true ] && tarballs+=("xsrc.tgz")
     for tgz in "${tarballs[@]}"; do
         if [ ! -f "$BASE_DIR/$tgz" ]; then
-            wget -c "${base_url}/${tgz}" -O "$BASE_DIR/$tgz" || error "Failed to download $tgz"
+            if ! download_with_retry "${base_url}/${tgz}" "$BASE_DIR/$tgz" 6 5; then
+                error "Failed to download $tgz after retries"
+            fi
         fi
     done
     mkdir -p "$SRC_DIR"
@@ -334,7 +417,7 @@ fetch_current_git() {
     update_repo() {
         local dir="$1"
         local url="$2"
-        local git_opts=(-c http.postBuffer=524288000 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=600)
+        local git_opts=( -c http.postBuffer=524288000 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=600 )
         if [ -d "$dir/.git" ]; then
             cd "$dir" && git "${git_opts[@]}" fetch --depth 1 origin "$CURRENT_BRANCH" && git reset --hard "origin/$CURRENT_BRANCH"
         else
